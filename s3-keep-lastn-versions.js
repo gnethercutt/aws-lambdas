@@ -24,12 +24,13 @@ exports.handler = function(event, context) {
             data.Versions.forEach( function(element, index, array, acc) {
                     if (index > nToKeep) dparams.Delete.Objects.push( { Key: key, VersionId: element.VersionId } );
                 }, dparams);
-            s3.deleteObjects(dparams, function(err, data) {
+            if (dparams.Delete.Objects.length < 1) context.succeed(dparams.Delete.Objects);
+            else s3.deleteObjects(dparams, function(err, data) {
                 if (err) {
                     console.log(err, err.stack); 
                     context.fail(err);
                 } else {
-                    context.succeed(bucket + "/" + key);
+                    context.succeed(dparams.Delete.Objects);
                 }
             });
         }
